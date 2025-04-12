@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { Separator } from "@/components/ui/separator";
 
 const SettingsContent = () => {
   const { panelState, setSelectedIrradiance } = usePvPanel();
@@ -34,9 +35,17 @@ const SettingsContent = () => {
   const form = useForm({
     defaultValues: {
       panelPower: "320",
+      powerTolerance: "±3",
+      maxPower: "320",
       panelEfficiency: "17.5",
-      nominalVoltage: "40",
-      nominalCurrent: "8",
+      vmp: "36.7", // Voltage at maximum power
+      imp: "8.72", // Current at maximum power
+      voc: "45.5", // Open circuit voltage
+      isc: "9.18", // Short circuit current
+      vocIscTolerance: "±5",
+      maxSystemVoltage: "1000",
+      maxSeriesFuse: "15",
+      operatingTemp: "-40~+85",
       cellTemperatureCoefficient: "-0.0025"
     }
   });
@@ -129,97 +138,243 @@ const SettingsContent = () => {
           <CardHeader>
             <CardTitle>Panel Characteristics</CardTitle>
             <CardDescription>
-              Modify the electrical characteristics of your PV panel for more accurate I-V curve simulations.
+              Configure detailed electrical characteristics of your PV panel under Standard Test Conditions (STC).
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="panelPower"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nominal Power (W)</FormLabel>
-                        <FormControl>
-                          <Input type="number" min="50" max="1000" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Rated power output of the panel in Watts
-                        </FormDescription>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="panelEfficiency"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Panel Efficiency (%)</FormLabel>
-                        <FormControl>
-                          <Input type="number" min="5" max="30" step="0.1" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Efficiency percentage at standard test conditions
-                        </FormDescription>
-                      </FormItem>
-                    )}
-                  />
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* Basic Electrical Characteristics */}
+                <div>
+                  <h3 className="text-base font-medium mb-2">Power Specifications</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="maxPower"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Maximum Power (Pmax) [W]</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Maximum power output at STC
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="powerTolerance"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Power Tolerance [%]</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Acceptable power range (e.g., ±3%)
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="panelEfficiency"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Panel Efficiency [%]</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Efficiency at standard test conditions
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="nominalVoltage"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Open Circuit Voltage - Voc (V)</FormLabel>
-                        <FormControl>
-                          <Input type="number" min="10" max="100" step="0.1" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Open circuit voltage at standard test conditions
-                        </FormDescription>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="nominalCurrent"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Short Circuit Current - Isc (A)</FormLabel>
-                        <FormControl>
-                          <Input type="number" min="1" max="20" step="0.1" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Short circuit current at standard test conditions
-                        </FormDescription>
-                      </FormItem>
-                    )}
-                  />
+                <Separator />
+                
+                {/* Maximum Power Point Characteristics */}
+                <div>
+                  <h3 className="text-base font-medium mb-2">Maximum Power Point Characteristics</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="vmp"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Voltage at Max Power (Vmp) [V]</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Voltage at maximum power point
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="imp"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Current at Max Power (Imp) [A]</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Current at maximum power point
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
                 
-                <FormField
-                  control={form.control}
-                  name="cellTemperatureCoefficient"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Temperature Coefficient (%/°C)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min="-0.01" max="0" step="0.0001" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Power temperature coefficient (negative value)
-                      </FormDescription>
-                    </FormItem>
-                  )}
-                />
+                <Separator />
                 
-                <Button type="submit">Save Panel Characteristics</Button>
+                {/* Open/Short Circuit Characteristics */}
+                <div>
+                  <h3 className="text-base font-medium mb-2">Circuit Characteristics</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="voc"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Open Circuit Voltage (Voc) [V]</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Open circuit voltage
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="isc"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Short Circuit Current (Isc) [A]</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Short circuit current
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="vocIscTolerance"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Voc & Isc Tolerance [%]</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Tolerance for Voc and Isc values
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                {/* System Specifications */}
+                <div>
+                  <h3 className="text-base font-medium mb-2">System Specifications</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="maxSystemVoltage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Maximum System Voltage [V]</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Maximum DC system voltage
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="maxSeriesFuse"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Maximum Series Fuse Rating [A]</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Maximum series fuse rating
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="operatingTemp"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Operating Temperature [°C]</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Operating temperature range
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                {/* Temperature Coefficients */}
+                <div>
+                  <h3 className="text-base font-medium mb-2">Temperature Coefficients</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="cellTemperatureCoefficient"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Power Temperature Coefficient [%/°C]</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Power temperature coefficient (e.g., -0.0025)
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                
+                <Button type="submit" className="mt-4">Save Panel Characteristics</Button>
               </form>
             </Form>
           </CardContent>
