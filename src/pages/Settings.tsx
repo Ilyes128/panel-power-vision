@@ -79,7 +79,7 @@ const SettingsContent = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <FormLabel>Measurement Interval</FormLabel>
+                  <label className="text-sm font-medium leading-none">Measurement Interval</label>
                   <Select 
                     value={measurementInterval} 
                     onValueChange={setMeasurementInterval}
@@ -98,7 +98,7 @@ const SettingsContent = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <FormLabel>Alert Threshold</FormLabel>
+                  <label className="text-sm font-medium leading-none">Alert Threshold</label>
                   <Select 
                     value={alertThreshold} 
                     onValueChange={setAlertThreshold}
