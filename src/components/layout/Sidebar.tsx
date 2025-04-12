@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Sidebar as SidebarComponent,
   SidebarContent,
@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 
 const Sidebar = () => {
+  const location = useLocation();
+  
   return (
     <SidebarComponent>
       <SidebarHeader>
@@ -38,7 +40,7 @@ const Sidebar = () => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/" className="flex items-center">
+                  <Link to="/" className={`flex items-center ${location.pathname === '/' ? 'text-primary font-medium' : ''}`}>
                     <LayoutDashboard className="h-5 w-5 mr-3" />
                     <span>Dashboard</span>
                   </Link>
@@ -77,7 +79,7 @@ const Sidebar = () => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/" className="flex items-center">
+                  <Link to="/settings" className={`flex items-center ${location.pathname === '/settings' ? 'text-primary font-medium' : ''}`}>
                     <Settings className="h-5 w-5 mr-3" />
                     <span>Settings</span>
                   </Link>
