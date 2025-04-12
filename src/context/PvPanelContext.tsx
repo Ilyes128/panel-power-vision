@@ -13,6 +13,8 @@ interface PvPanelContextType {
   isLive: boolean;
   setIsLive: (isLive: boolean) => void;
   simulateRandomFault: () => void;
+  setMeasurementInterval?: (interval: number) => void;
+  setAlertThreshold?: (threshold: string) => void;
 }
 
 const PvPanelContext = createContext<PvPanelContextType | undefined>(undefined);
@@ -35,6 +37,8 @@ export const PvPanelProvider: React.FC<PvPanelProviderProps> = ({ children }) =>
   const [selectedIrradiance, setSelectedIrradiance] = useState<IrradianceLevel>(800);
   const [alerts, setAlerts] = useState<FaultAlert[]>(generateHistoricalAlerts(initialPanelState.id));
   const [isLive, setIsLive] = useState(true);
+  const [measurementInterval, setMeasurementInterval] = useState<number>(5);
+  const [alertThreshold, setAlertThreshold] = useState<string>("medium");
   
   // Function to acknowledge an alert
   const acknowledgeAlert = (alertId: string) => {
@@ -120,10 +124,10 @@ export const PvPanelProvider: React.FC<PvPanelProviderProps> = ({ children }) =>
                   fault.severity === 'warning' ? 'default' : 'default'
         });
       }
-    }, 5000); // Update every 5 seconds
+    }, measurementInterval * 1000); // Use the measurement interval from state
     
     return () => clearInterval(intervalId);
-  }, [isLive, panelState.currentData, toast]);
+  }, [isLive, panelState.currentData, toast, measurementInterval]);
   
   return (
     <PvPanelContext.Provider 
@@ -135,7 +139,9 @@ export const PvPanelProvider: React.FC<PvPanelProviderProps> = ({ children }) =>
         acknowledgeAlert,
         isLive,
         setIsLive,
-        simulateRandomFault
+        simulateRandomFault,
+        setMeasurementInterval,
+        setAlertThreshold
       }}
     >
       {children}

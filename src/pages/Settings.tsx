@@ -26,11 +26,11 @@ import { useToast } from "@/components/ui/use-toast";
 import { Separator } from "@/components/ui/separator";
 
 const SettingsContent = () => {
-  const { panelState, setSelectedIrradiance } = usePvPanel();
+  const { panelState, setMeasurementInterval, setAlertThreshold } = usePvPanel();
   const { toast } = useToast();
   
-  const [measurementInterval, setMeasurementInterval] = useState("5");
-  const [alertThreshold, setAlertThreshold] = useState("medium");
+  const [measurementInterval, setLocalMeasurementInterval] = useState("5");
+  const [alertThreshold, setLocalAlertThreshold] = useState("medium");
   
   const form = useForm({
     defaultValues: {
@@ -59,11 +59,24 @@ const SettingsContent = () => {
   };
   
   const handleSystemSettingsSubmit = () => {
-    console.log("System settings updated:", { measurementInterval, alertThreshold });
-    toast({
-      title: "System settings updated",
-      description: "Your monitoring system settings have been saved successfully.",
-    });
+    if (setMeasurementInterval && setAlertThreshold) {
+      // Convert measurement interval to number
+      const intervalValue = parseInt(measurementInterval, 10);
+      setMeasurementInterval(intervalValue);
+      setAlertThreshold(alertThreshold);
+      
+      console.log("System settings updated:", { measurementInterval, alertThreshold });
+      toast({
+        title: "System settings updated",
+        description: "Your monitoring system settings have been saved successfully.",
+      });
+    } else {
+      toast({
+        title: "Error updating settings",
+        description: "Failed to save system settings. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
   
   return (
@@ -91,7 +104,7 @@ const SettingsContent = () => {
                   <label className="text-sm font-medium leading-none">Measurement Interval</label>
                   <Select 
                     value={measurementInterval} 
-                    onValueChange={setMeasurementInterval}
+                    onValueChange={setLocalMeasurementInterval}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select interval" />
@@ -110,7 +123,7 @@ const SettingsContent = () => {
                   <label className="text-sm font-medium leading-none">Alert Threshold</label>
                   <Select 
                     value={alertThreshold} 
-                    onValueChange={setAlertThreshold}
+                    onValueChange={setLocalAlertThreshold}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select threshold" />
